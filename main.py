@@ -33,15 +33,12 @@ class Feature_extractor:
         return image.T.reshape(-1)
 
 # Lazy load the dataset
-rene = ReneDataset(input_folder="rene_dataset") # https://github.com/eyecan-ai/rene
 os.system("rm -rf test/*.png")
 eigenvectors_3d = []
 
 dataset_name = "coil" # coil or rene
 
 object_name = "cheetah"
-num_lights = len(rene[object_name])
-num_poses = len(rene[object_name][0])
 
 
 images = []
@@ -50,6 +47,10 @@ image_size = 40
 
 
 if dataset_name == "rene":
+    rene = ReneDataset(input_folder="rene_dataset") # https://github.com/eyecan-ai/rene
+    num_lights = len(rene[object_name])
+    num_poses = len(rene[object_name][0])
+
     for l in tqdm(range(1)): #num_lights
         num_poses = len(rene[object_name][l])
     
@@ -65,7 +66,7 @@ if dataset_name == "rene":
 
 elif dataset_name == "coil":
         directory_path = Path("coil-100/coil-100") #https://www.kaggle.com/datasets/jessicali9530/coil100
-        obj_id = 2
+        obj_id = 6
         for i in range(0,355,5):
             file = directory_path / f"obj{obj_id}__{i}.png"
             image = cv2.imread(file)
@@ -164,6 +165,9 @@ print(f"How many principal components are sufficient? {index}")
 # print("Vt,", Vt)
 plt.close("all")
 plt.plot(S[:index])
+plt.xlabel("Index") # Set your desired x-axis label here
+plt.ylabel("Eigenvalue Magnitude") # Set your desired y-axis label here
+plt.title("Magnitude of Eigenvalues that are needed to reconstruct 95% of the data") # You might also want a title
 plt.savefig("eigenvalues.png")
 
 for i in range(index):
@@ -181,7 +185,7 @@ for i in range(index):
 # p = features @ principal_components[:index]
 print("principal_components.shape: ", principal_components.shape)
 # k dimension projection of the features using k eigen vectors
-k = 100
+k = 1000
 projected_components = features @ principal_components[:,:k] # (M, N) * (N, k) = (M, k)
 print("projected_components shape: ",projected_components.shape)
 eigenvector_3d = principal_components[0,:3]
@@ -232,6 +236,7 @@ ax.set_xlabel('Principal Component 1')
 ax.set_ylabel('Principal Component 2')
 ax.set_zlabel('Principal Component 3')
 ax.legend()
+plt.savefig("3d_manifold_representation.png") # You can change the filename and extension
 
 plt.show()
 
